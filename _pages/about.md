@@ -2,12 +2,12 @@
 layout: about
 title: about
 permalink: /
-subtitle: <a href='#'>Affiliations</a>. Address. Contacts. Motto. Etc.
+subtitle: Tramen ad proximam stationem perveniet.
 
 profile:
   align: right
   image: prof_pic.jpg
-  image_circular: True # crops the image to make it circular
+  image_circular: False # crops the image to make it circular
   more_info: >
     <p>Davis, CA 95618</p>
 
@@ -24,4 +24,6 @@ latest_posts:
   scrollable: true # adds a vertical scroll bar if there are more than 3 new posts items
   limit: 3 # leave blank to include all the blog posts
 ---
-Hi, I'm a graduate student in Electrical and Computer Engineering at UC Davis, with a background in signal processing and machine learning. Currently designing and implementing novel Reinforcement Learning frameworks to enhance the multi-hop question answering capabilities of language models. Actively seeking an AI Engineer role to apply these skills to solve real-world challenges.
+Hi, I'm a graduate student in Electrical and Computer Engineering at UC Davis, with a background in signal processing and machine learning.
+
+I'm currently designing and implementing novel Reinforcement Learning frameworks to enhance the multi-hop question answering capabilities of language models. Actively seeking an AI Engineer role to apply these skills to solve real-world challenges.

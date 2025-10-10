@@ -48,10 +48,10 @@ repo_trophies:
 
 navbar_fixed: true
 footer_fixed: true
-search_enabled: true
-socials_in_search: true
-posts_in_search: true
-bib_search: true
+search_enabled: False
+socials_in_search: False
+posts_in_search: False
+bib_search: False
 
 # Dimensions
 max_width: 930px
@@ -199,6 +199,8 @@ exclude:
   - _pages/news.md
   - _pages/repositories.md
   - _pages/teaching.md
+  - _pages/profiles.md
+  - _pages/projects.md
 keep_files:
   - CNAME
   - .nojekyll
