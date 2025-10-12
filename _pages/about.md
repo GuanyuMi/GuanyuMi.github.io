@@ -6,13 +6,13 @@ subtitle: Tramen ad proximam stationem perveniet.
 
 profile:
   align: right
-  image: prof_pic.jpg
+  image: myphoto.jpg
   image_circular: False # crops the image to make it circular
   more_info: >
     <p>Davis, CA 95618</p>
 
 selected_papers: False # includes a list of papers marked as "selected={true}"
-social: true # includes social icons at the bottom of the page
+social: False # includes social icons at the bottom of the page
 
 announcements:
   enabled: False # includes a list of news items
