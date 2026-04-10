@@ -5,13 +5,13 @@
 
 import { useState, useEffect, ReactNode } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Cpu, 
-  Code2, 
-  Github, 
-  Twitter, 
-  Linkedin, 
-  Mail, 
+import {
+  Cpu,
+  Code2,
+  Github,
+  Twitter,
+  Linkedin,
+  Mail,
   ExternalLink,
   Moon,
   Sun,
@@ -26,13 +26,15 @@ import {
   Navigation,
   Shield,
   Database,
-  Globe
+  Globe,
+  FileText
 } from 'lucide-react';
 
 import { ResumeData } from './types/resume';
 import resumeDataRaw from '../assets/resume.json';
 // Import the photo so Vite can bundle it
 import photoImg from '../assets/photo.png';
+import resumePdf from '../assets/resume.pdf';
 
 const resumeData = resumeDataRaw as ResumeData;
 
@@ -54,16 +56,14 @@ const TimelineItem = ({ title, company, period, description, type, isDarkMode = 
   return (
     <div className="relative pl-8 pb-6 last:pb-0">
       <div className="absolute left-[11px] top-2 bottom-0 w-0.5 bg-slate-200/50" />
-      <div className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-4 border-white shadow-sm z-10 ${
-        isResearch ? 'bg-indigo-500' : 'bg-teal-500'
-      }`} />
-      
+      <div className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-4 border-white shadow-sm z-10 ${isResearch ? 'bg-indigo-500' : 'bg-teal-500'
+        }`} />
+
       <div className="flex flex-col">
         <div className="flex items-center justify-between mb-1">
           <h4 className={`font-bold text-sm ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{title}</h4>
-          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-            isResearch ? 'bg-indigo-100 text-indigo-600' : 'bg-teal-100 text-teal-600'
-          }`}>
+          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${isResearch ? 'bg-indigo-100 text-indigo-600' : 'bg-teal-100 text-teal-600'
+            }`}>
             {type}
           </span>
         </div>
@@ -83,12 +83,11 @@ const TimelineItem = ({ title, company, period, description, type, isDarkMode = 
 };
 
 const ProjectCard = ({ title, description, tags, icon: Icon, link, isDarkMode = false }: any) => (
-  <motion.div 
+  <motion.div
     whileHover={{ scale: 1.01 }}
     whileTap={{ scale: 0.99 }}
-    className={`group relative overflow-hidden rounded-ios-sm p-5 border transition-all hover:bg-white/30 shadow-sm h-full flex flex-col ${
-      isDarkMode ? 'bg-white/10 border-white/20 hover:bg-white/20' : 'bg-white/20 border-white/40 hover:bg-white/30'
-    }`}
+    className={`group relative overflow-hidden rounded-ios-sm p-5 border transition-all hover:bg-white/30 shadow-sm h-full flex flex-col ${isDarkMode ? 'bg-white/10 border-white/20 hover:bg-white/20' : 'bg-white/20 border-white/40 hover:bg-white/30'
+      }`}
   >
     <a href={link} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-10" aria-label={`View ${title}`} />
     <div className="flex items-start justify-between mb-3">
@@ -100,9 +99,8 @@ const ProjectCard = ({ title, description, tags, icon: Icon, link, isDarkMode = 
     <h3 className={`font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{title}</h3>
     <div className="flex flex-wrap gap-2 mt-auto">
       {tags.map((tag: string) => (
-        <span key={tag} className={`text-[10px] font-medium px-2 py-1 rounded-full uppercase tracking-wider ${
-          isDarkMode ? 'bg-white/10 text-slate-300' : 'bg-slate-200/50 text-slate-600'
-        }`}>
+        <span key={tag} className={`text-[10px] font-medium px-2 py-1 rounded-full uppercase tracking-wider ${isDarkMode ? 'bg-white/10 text-slate-300' : 'bg-slate-200/50 text-slate-600'
+          }`}>
           {tag}
         </span>
       ))}
@@ -144,8 +142,8 @@ export default function App() {
   const timeString = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   // Resolve Image
-  const profileImage = resumeData.basics.image.includes('photo.png') 
-    ? photoImg 
+  const profileImage = resumeData.basics.image.includes('photo.png')
+    ? photoImg
     : (resumeData.basics.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(resumeData.basics.name)}&size=400&background=random`);
 
   return (
@@ -187,9 +185,9 @@ export default function App() {
             className="mt-8 md:mt-0 relative flex-shrink-0"
           >
             <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white shadow-2xl ios-shadow">
-              <img 
+              <img
                 src={profileImage}
-                alt="Profile" 
+                alt="Profile"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
@@ -199,12 +197,21 @@ export default function App() {
 
         {/* Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
+
           {/* Left Column: Controls + Status */}
           <div className="md:col-span-1 flex flex-col gap-6">
 
             {/* Current Status Widget */}
             <GlassCard className="flex-grow" isDarkMode={isDarkMode}>
+              <a
+                href={resumePdf}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 mb-6 rounded-2xl text-sm font-bold text-white transition-all border border-white/20 shadow-md hover:shadow-lg hover:-translate-y-0.5 bg-gradient-to-br from-violet-600 to-rose-500 hover:from-violet-500 hover:to-rose-400 group"
+              >
+                <FileText size={18} className="text-white/90" />
+                View Resume PDF
+              </a>
               <h2 className={`text-lg font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Current Status</h2>
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
@@ -256,9 +263,8 @@ export default function App() {
                       {skillGroup.keywords.map((skill) => {
                         const Icon = getSkillIcon(skill);
                         return (
-                          <div key={skill} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm ${
-                            isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white/20 border-white/40'
-                          }`}>
+                          <div key={skill} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-white/20 border-white/40'
+                            }`}>
                             <Icon size={14} className="text-indigo-600" />
                             <span className={`text-xs font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>{skill}</span>
                           </div>
@@ -297,7 +303,7 @@ export default function App() {
               <h2 className={`text-xl font-bold mb-8 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Experience</h2>
               <div className="space-y-4">
                 {resumeData.experience.map((exp, idx) => (
-                  <TimelineItem 
+                  <TimelineItem
                     key={idx}
                     title={exp.position}
                     company={exp.institution || exp.company || ""}
@@ -324,9 +330,9 @@ export default function App() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {resumeData.projects.map((proj, idx) => (
-                  <ProjectCard 
+                  <ProjectCard
                     key={idx}
-                    title={proj.name} 
+                    title={proj.name}
                     description={proj.description}
                     tags={proj.highlights}
                     icon={Terminal}
@@ -349,9 +355,8 @@ export default function App() {
                   if (profile.network.toLowerCase() === 'linkedin') bgColor = "bg-blue-700";
 
                   return (
-                    <a key={profile.network} href={profile.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-4 p-3 rounded-2xl border transition-all group shadow-sm z-10 relative ${
-                      isDarkMode ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-white/20 border-white/30 hover:bg-white/30'
-                    }`}>
+                    <a key={profile.network} href={profile.url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-4 p-3 rounded-2xl border transition-all group shadow-sm z-10 relative ${isDarkMode ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-white/20 border-white/30 hover:bg-white/30'
+                      }`}>
                       <div className={`p-2 rounded-xl ${bgColor} text-white`}>
                         <Icon size={18} />
                       </div>
@@ -372,7 +377,7 @@ export default function App() {
 
         {/* Footer */}
         <footer className="mt-24 text-center text-slate-400 text-sm">
-          <p>© {new Date().getFullYear()} {resumeData.basics.name}. Built with precision and intelligence.</p>
+          <p>© {new Date().getFullYear()} {resumeData.basics.name}. All rights reserved. Built with TypeScript and React.</p>
         </footer>
       </main>
 
@@ -388,7 +393,7 @@ export default function App() {
           >
             <Globe size={20} className={isDarkMode ? 'text-slate-300' : 'text-slate-700'} />
           </motion.div>
-          
+
           {/* Theme Toggle */}
           <motion.div
             onClick={() => setIsDarkMode(!isDarkMode)}
