@@ -33,7 +33,7 @@
       "area": "Electrical and Computer Engineering",
       "studyType": "Master of Science",
       "startDate": "2024-09",
-      "endDate": "2026-06",
+      "endDate": "2026-09",
       "courses": [
         "Large Foundation Models and Personalization",
         "Foundations of Large Language Models",
@@ -101,7 +101,7 @@
   ],
   "skills": [
     {
-      "category": "Programming & Scripting",
+      "category": "Languages",
       "keywords": [
         "Python",
         "C/C++",
@@ -122,7 +122,7 @@
       ]
     },
     {
-      "category": "LLM & Agentic Ecosystem",
+      "category": "LLM & Agentic Tools",
       "keywords": [
         "vLLM",
         "Unsloth",
@@ -134,7 +134,7 @@
       ]
     },
     {
-      "category": "Tools & Infrastructure",
+      "category": "Developer Tools",
       "keywords": [
         "Linux",
         "Docker",
@@ -162,9 +162,9 @@
       ]
     },
     {
-      "name": "Real-Time Sensor Data Acquisition System",
-      "link": "https://github.com/GuanyuMi/Resume-Matcher-with-mock-interview-plugin",
-      "startDate": "2026-02",
+      "name": "Efficient Reproduction of Logic‑RL with Unsloth",
+      "link": "https://github.com/GuanyuMi/logic-rl-unsloth-repro",
+      "startDate": "2025-07",
       "description": [
         "Reproduced the key experiments from the Logic-RL paper by assembling a fine-tuning workflow using existing tools such as Unsloth, LoRA, TRL, and vLLM, enabling DeepSeek-R1-style reasoning training on a single 16GB V100 GPU.",
         "Performed systematic hyperparameter tuning through TensorBoard-based analysis, adjusting KL-penalty weights and reward configurations to identify a locally optimal setup under limited computing resources."
@@ -174,8 +174,7 @@
         "LoRA",
         "TRL",
         "LLM",
-        "Python",
-        "Transformers"
+        "Python"
       ]
     }
   ]
