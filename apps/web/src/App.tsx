@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   Box,
@@ -28,14 +28,16 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { ExperienceItem, ProjectItem, ResumeData } from './types/resume';
-import resumeEnRaw from '../assets/resume.json';
-import resumeZhRaw from '../assets/resume-ch.json';
+import { defaultResumes } from '@portfolio/resume-content';
+import type { Locale, ResumeData } from '@portfolio/resume-schema';
+import { loadPublishedResume } from './lib/resumes';
+import { ExperienceItem, ProjectItem } from './types/resume';
+import lightBackground from '../assets/background.png';
 import photoImg from '../assets/photo.png';
 import resumeEnPdf from '../assets/resume.pdf';
 import resumeZhPdf from '../assets/resume-ch.pdf';
 
-type Language = 'en' | 'zh';
+type Language = Locale;
 
 type Labels = {
   about: string;
@@ -68,9 +70,9 @@ type ThemeClasses = {
   tag: string;
 };
 
-const RESUMES: Record<Language, { data: ResumeData; pdf: string }> = {
-  en: { data: resumeEnRaw as ResumeData, pdf: resumeEnPdf },
-  zh: { data: resumeZhRaw as ResumeData, pdf: resumeZhPdf },
+const RESUME_PDFS: Record<Language, string> = {
+  en: resumeEnPdf,
+  zh: resumeZhPdf,
 };
 
 const LABELS: Record<Language, Labels> = {
@@ -211,7 +213,7 @@ const TimelineItem = ({
   language: Language;
 }) => {
   const theme = getTheme(isDarkMode);
-  const isResearch = item.type.toLowerCase() === 'research';
+  const isResearch = item.type?.toLowerCase() === 'research';
   const organization = item.institution ?? item.company ?? '';
 
   return (
@@ -233,7 +235,7 @@ const TimelineItem = ({
               isResearch ? 'bg-indigo-100 text-indigo-600' : 'bg-teal-100 text-teal-600',
             )}
           >
-            {getExperienceType(item.type, language)}
+            {getExperienceType(item.type ?? '', language)}
           </span>
         </div>
         <div className="mb-2 flex items-center gap-2 text-xs font-medium text-slate-500">
@@ -242,7 +244,7 @@ const TimelineItem = ({
           <span className={theme.muted}>{item.startDate} - {item.endDate}</span>
         </div>
         <div className="space-y-1">
-          {item.description.map((description) => (
+          {(item.description ?? (item.summary ? [item.summary] : [])).map((description) => (
             <p key={description} className={cn('text-xs leading-relaxed', theme.body)}>
               • {description}
             </p>
@@ -286,7 +288,7 @@ const ProjectCard = ({
       </div>
       <h3 className={cn('mb-4 font-semibold', theme.cardTitle)}>{project.name}</h3>
       <div className="mt-auto flex flex-wrap gap-2">
-        {project.highlights.map((tag) => (
+        {(project.highlights ?? []).map((tag) => (
           <span key={tag} className={cn('rounded-full px-2 py-1 text-[10px] font-medium uppercase tracking-wider', theme.tag)}>
             {tag}
           </span>
@@ -348,8 +350,16 @@ const DockLink = ({
 export default function App() {
   const [language, setLanguage] = useState<Language>('en');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [resumes, setResumes] = useState<Record<Language, ResumeData>>(defaultResumes);
 
-  const { data: resumeData, pdf: resumePdf } = RESUMES[language];
+  useEffect(() => {
+    void Promise.all((['en', 'zh'] as const).map(loadPublishedResume)).then(([en, zh]) => {
+      setResumes({ en: en ?? defaultResumes.en, zh: zh ?? defaultResumes.zh });
+    });
+  }, []);
+
+  const resumeData = resumes[language];
+  const resumePdf = RESUME_PDFS[language];
   const labels = LABELS[language];
   const theme = getTheme(isDarkMode);
   const profileImage = getProfileImage(resumeData);
@@ -358,9 +368,13 @@ export default function App() {
   return (
     <div className={cn('min-h-screen transition-colors duration-700', isDarkMode ? 'bg-slate-950' : 'bg-[#f2f2f7]')}>
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className={cn('absolute -top-24 -left-24 h-96 w-96 rounded-full blur-[120px] transition-colors duration-1000', isDarkMode ? 'bg-indigo-600/40' : 'bg-blue-400/40')} />
-        <div className={cn('absolute top-1/2 -right-24 h-80 w-80 rounded-full blur-[100px] transition-colors duration-1000', isDarkMode ? 'bg-purple-600/30' : 'bg-purple-400/30')} />
-        <div className={cn('absolute -bottom-24 left-1/3 h-72 w-72 rounded-full blur-[100px] transition-colors duration-1000', isDarkMode ? 'bg-blue-600/30' : 'bg-pink-400/30')} />
+        <img
+          src={lightBackground}
+          alt=""
+          className="h-full w-full object-cover"
+          aria-hidden="true"
+        />
+        <div className={cn('absolute inset-0 transition-colors duration-700', isDarkMode ? 'bg-slate-950/35' : 'bg-white/20')} />
       </div>
 
       <main className="relative mx-auto max-w-7xl px-6 pt-24 pb-32">
@@ -443,7 +457,7 @@ export default function App() {
             <GlassCard className="h-full" delay={0.1} isDarkMode={isDarkMode}>
               <h2 className={cn('mb-4 text-xl font-bold', theme.cardTitle)}>{labels.about}</h2>
               <div className={cn('space-y-4 text-sm leading-relaxed lg:text-base', theme.body)}>
-                {resumeData.basics.about.split('\n\n').map((paragraph) => (
+                {(resumeData.basics.about ?? resumeData.basics.summary ?? '').split('\n\n').map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
               </div>
@@ -530,7 +544,7 @@ export default function App() {
                 )}
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {resumeData.projects.map((project) => (
+                {(resumeData.projects ?? []).map((project) => (
                   <ProjectCard key={project.name} project={project} isDarkMode={isDarkMode} />
                 ))}
               </div>
