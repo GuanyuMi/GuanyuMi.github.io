@@ -2,38 +2,18 @@
 
 ## Project Rules
 
-- Build a static, single-page portfolio in TypeScript with a local demo workflow first.
-- Treat `resume.json` as the source of portfolio content.
-- Keep the site GitHub Pages compatible: static assets only, no server runtime, no client-side routing dependency.
-- Every interactive control should work on desktop and touch devices.
+- This is an npm-workspaces monorepo: `apps/web` is the public GitHub Pages site; `apps/resume-studio` is a local-only editor.
+- Deploy only `apps/web/dist`. Do not add resume-studio routes, assets, or authentication flows to the public site.
+- Treat Supabase `resume_published` as public content and `resume_drafts` as private editor content. Keep `packages/resume-content` only as seed and fallback data.
+- Keep all secrets out of the repository. Use `.env.local` locally and GitHub Actions Variables for the web build; never expose a service-role key.
+- Preserve static assets and GitHub Pages compatibility. All interactive controls must work on desktop and touch devices.
+- Use React, TypeScript, Tailwind, and Lucide icons where applicable. Keep changes focused and avoid unnecessary abstractions.
 
-## Implementation Defaults
+## Verification
 
-- Use `tailwind CSS + React + TypeScript`.
-- Use Lucide icons.
-
-## Shell Command Policy
-
-- Only use the minimum shell commands needed for this project.
-- Allowed read-only inspection commands:
-  - `Get-Content resume.json`
-  - `Get-Content AGENT.md`
-  - `Get-Content design.md`
-  - `Get-ChildItem -Force`
-  - `git status --short`
-- Allowed development commands:
-  - `npm install`
-  - `npm install -D`
-  - `npm run dev`
-  - `npm run build`
-  - `npm run preview`
-- Allowed scope for these commands:
-  - Install only dependencies required by the current frontend app.
-  - Run only local Vite, TypeScript, and GitHub Pages related workflows.
-  - Read or verify only files inside this repository.
-- All other shell commands should be treated as disallowed unless the user explicitly asks for them.
-- Do not use destructive commands such as `rm`, `del`, `Remove-Item`, `git reset --hard`, `git checkout --`, or any command that changes unrelated files.
-- Do not run global installs, package manager upgrades, deployment CLIs, or arbitrary scripts unless the user explicitly requests them.
+- Run `npm run typecheck` after TypeScript changes.
+- Run `npm run build:web` for public-site or deployment changes.
+- Run `npm run build:resume` for resume-studio or print-layout changes.
 
 ## Commit Convention
 
