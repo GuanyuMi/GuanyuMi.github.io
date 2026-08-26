@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import type {
+  ResumeBalance,
   ResumeData,
-  ResumeLayout,
   ResumeSectionKey,
   ResumeVisibility,
 } from '../types';
 
 interface PreviewPaneProps {
+  balance: ResumeBalance;
   data: ResumeData;
-  layout: ResumeLayout;
   visibility: ResumeVisibility;
   language: 'zh' | 'en';
+  onBalanceChange: React.Dispatch<React.SetStateAction<ResumeBalance>>;
 }
 
 const sectionText = {
@@ -32,6 +33,41 @@ const sectionText = {
     supervisor: 'Supervisor',
     coursework: 'Coursework',
   },
+};
+
+const ContactIcon = ({ type }: { type: 'email' | 'website' | 'linkedin' }) => {
+  if (type === 'linkedin') {
+    return (
+      <svg aria-hidden="true" className="contact-icon" viewBox="0 0 24 24">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V8.98h3.42v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.29ZM5.32 7.41a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.1 20.45H3.54V8.98H7.1v11.47Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      aria-hidden="true"
+      className="contact-icon"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.8"
+      viewBox="0 0 24 24"
+    >
+      {type === 'email' ? (
+        <>
+          <rect height="16" rx="2" width="20" x="2" y="4" />
+          <path d="m22 7-8.97 5.7a1.9 1.9 0 0 1-2.06 0L2 7" />
+        </>
+      ) : (
+        <>
+          <circle cx="12" cy="12" r="10" />
+          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20M12 2a15.3 15.3 0 0 0 0 20" />
+        </>
+      )}
+    </svg>
+  );
 };
 
 const strongTerms = [
@@ -59,6 +95,10 @@ const strongTerms = [
   'LoRA',
   'TRL',
   'vLLM',
+  'Zod',
+  'Supabase Auth',
+  'PostgreSQL RLS',
+  'GitHub Pages',
 ];
 
 const itemKey = (section: ResumeSectionKey, index: number) => `${section}.${index}`;
@@ -167,7 +207,12 @@ const SectionIcon = ({ name }: { name: ResumeSectionKey }) => {
 
 const GithubMark = () => (
   <svg className="inline-icon" viewBox="0 0 19 19" aria-hidden="true">
-    <use href="/icons.svg#github-icon" />
+    <path
+      clipRule="evenodd"
+      d="M9.356 1.85C5.05 1.85 1.57 5.356 1.57 9.694a7.84 7.84 0 0 0 5.324 7.44c.387.079.528-.168.528-.376 0-.182-.013-.805-.013-1.454-2.165.467-2.616-.935-2.616-.935-.349-.91-.864-1.143-.864-1.143-.71-.48.051-.48.051-.48.787.051 1.2.805 1.2.805.695 1.194 1.817.857 2.268.649.064-.507.27-.857.49-1.052-1.728-.182-3.545-.857-3.545-3.87 0-.857.31-1.558.8-2.104-.078-.195-.349-1 .077-2.078 0 0 .657-.208 2.14.805a7.5 7.5 0 0 1 1.946-.26c.657 0 1.328.092 1.946.26 1.483-1.013 2.14-.805 2.14-.805.426 1.078.155 1.883.078 2.078.502.546.799 1.247.799 2.104 0 3.013-1.818 3.675-3.558 3.87.284.247.528.714.528 1.454 0 1.052-.012 1.896-.012 2.156 0 .208.142.455.528.377a7.84 7.84 0 0 0 5.324-7.441c.013-4.338-3.48-7.844-7.773-7.844"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
   </svg>
 );
 
@@ -180,7 +225,7 @@ const ResumeSection = ({
   name: ResumeSectionKey;
   children: React.ReactNode;
 }) => (
-  <section className="resume-section">
+  <section className={`resume-section resume-section-${name}`}>
     <div className="resume-section-heading">
       <h2 className="resume-section-title">
         <span className="section-icon">
@@ -194,12 +239,46 @@ const ResumeSection = ({
   </section>
 );
 
+const MAX_SPACING = 12;
+const MIN_ADJUSTMENT = -12;
+const FONT_REDUCTION_PER_STEP = 1 / 8;
+
+const getBalanceValues = (adjustment: number) => {
+  const spacing = Math.max(0, adjustment);
+  const fontReduction = Math.max(0, -adjustment) * FONT_REDUCTION_PER_STEP;
+
+  return {
+    spacing,
+    nameSize: 22,
+    sectionTitleSize: Math.max(10.5, 12 - fontReduction),
+    itemTitleSize: Math.max(9, 10.5 - fontReduction),
+    bodySize: Math.max(8.5, 10 - fontReduction),
+  };
+};
+
+const applyBalance = (page: HTMLElement, adjustment: number) => {
+  const { spacing, nameSize, sectionTitleSize, itemTitleSize, bodySize } = getBalanceValues(adjustment);
+  page.style.setProperty('--resume-spacing-unit', `${spacing}px`);
+  page.style.setProperty('--resume-item-gap', `${spacing * 1.5}px`);
+  page.style.setProperty('--resume-section-gap', `${spacing * 2}px`);
+  page.style.setProperty('--resume-list-line-height', `${1.32 + spacing / 48}`);
+  page.style.setProperty('--resume-body-line-height', `${1.45 + spacing / 48}`);
+  page.style.setProperty('--resume-name-size', `${nameSize}pt`);
+  page.style.setProperty('--resume-section-title-size', `${sectionTitleSize}pt`);
+  page.style.setProperty('--resume-item-title-size', `${itemTitleSize}pt`);
+  page.style.setProperty('--resume-body-size', `${bodySize}pt`);
+};
+
 const PreviewPane: React.FC<PreviewPaneProps> = ({
+  balance,
   data,
-  layout,
   visibility,
   language,
+  onBalanceChange,
 }) => {
+  const pageRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [autoAdjustment, setAutoAdjustment] = useState(0);
   const labels = sectionText[language];
   const visibleEducation = data.education.filter((_, index) =>
     isItemVisible(visibility, 'education', index),
@@ -217,28 +296,103 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
   const githubProfile = data.basics.profiles.find(
     (profile) => profile.network.toLowerCase() === 'github',
   );
+  const linkedinProfile = data.basics.profiles.find(
+    (profile) => profile.network.toLowerCase() === 'linkedin',
+  );
   const chineseInfoLine = [
     data.basics.gender,
     formatAge(data.basics.birth),
     visibility.basics.role ? data.basics.role : undefined,
   ].filter(Boolean);
+  const effectiveAdjustment = balance.auto ? autoAdjustment : balance.adjustment;
+  const balanceValues = getBalanceValues(effectiveAdjustment);
+
+  useLayoutEffect(() => {
+    const page = pageRef.current;
+    const content = contentRef.current;
+    if (!page || !content) {
+      setAutoAdjustment(0);
+      return;
+    }
+    if (!balance.auto) {
+      return;
+    }
+    let cancelled = false;
+    const measure = () => {
+      applyBalance(page, 0);
+      const styles = window.getComputedStyle(page);
+      const naturalHeight = content.getBoundingClientRect().height;
+      const availableHeight = page.clientHeight - Number.parseFloat(styles.paddingTop) - Number.parseFloat(styles.paddingBottom);
+
+      if (naturalHeight > availableHeight) {
+        let fittingAdjustment = MIN_ADJUSTMENT;
+        let overflowingAdjustment = 0;
+
+        applyBalance(page, fittingAdjustment);
+        if (content.getBoundingClientRect().height <= availableHeight) {
+          for (let index = 0; index < 12; index += 1) {
+            const candidate = (fittingAdjustment + overflowingAdjustment) / 2;
+            applyBalance(page, candidate);
+            if (content.getBoundingClientRect().height <= availableHeight) {
+              fittingAdjustment = candidate;
+            } else {
+              overflowingAdjustment = candidate;
+            }
+          }
+        }
+
+        const nextAdjustment = fittingAdjustment;
+        applyBalance(page, nextAdjustment);
+        if (!cancelled) setAutoAdjustment(nextAdjustment);
+        return;
+      }
+
+      let fittingAdjustment = 0;
+      let overflowingAdjustment = MAX_SPACING;
+      applyBalance(page, overflowingAdjustment);
+      if (content.getBoundingClientRect().height <= availableHeight) {
+        fittingAdjustment = MAX_SPACING;
+      } else {
+        for (let index = 0; index < 12; index += 1) {
+          const candidate = (fittingAdjustment + overflowingAdjustment) / 2;
+          applyBalance(page, candidate);
+          if (content.getBoundingClientRect().height <= availableHeight) {
+            fittingAdjustment = candidate;
+          } else {
+            overflowingAdjustment = candidate;
+          }
+        }
+      }
+
+      if (!cancelled) {
+        applyBalance(page, fittingAdjustment);
+        setAutoAdjustment(fittingAdjustment);
+      }
+    };
+    void document.fonts.ready.then(measure);
+    return () => { cancelled = true; };
+  }, [balance.auto, data, language, visibility]);
 
   return (
     <main className="preview-pane">
-      <div className="resume-pages">
+      <div className="preview-scroll">
+        <div className="resume-pages">
         <article
           className={`resume-page resume-page-${language}`}
-          style={
-            {
-              '--resume-name-size': `${layout.nameSize}pt`,
-              '--resume-section-title-size': `${layout.sectionTitleSize}pt`,
-              '--resume-item-title-size': `${layout.itemTitleSize}pt`,
-              '--resume-body-size': `${layout.bodySize}pt`,
-              '--resume-space-scale': layout.spacingScale,
-              '--resume-accent': layout.accentColor,
-            } as React.CSSProperties
-          }
+          ref={pageRef}
+          style={{
+            '--resume-spacing-unit': `${balanceValues.spacing}px`,
+            '--resume-item-gap': `${balanceValues.spacing * 1.5}px`,
+            '--resume-section-gap': `${balanceValues.spacing * 2}px`,
+            '--resume-list-line-height': `${1.32 + balanceValues.spacing / 48}`,
+            '--resume-body-line-height': `${1.45 + balanceValues.spacing / 48}`,
+            '--resume-name-size': `${balanceValues.nameSize}pt`,
+            '--resume-section-title-size': `${balanceValues.sectionTitleSize}pt`,
+            '--resume-item-title-size': `${balanceValues.itemTitleSize}pt`,
+            '--resume-body-size': `${balanceValues.bodySize}pt`,
+          } as React.CSSProperties}
         >
+        <div className="resume-content" ref={contentRef}>
           <header className="resume-header">
             <div className="resume-identity">
               <div>
@@ -275,16 +429,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
                       </p>
                     )}
                   </div>
-                ) : (
-                  <>
-                    {visibility.basics.role && data.basics.role && (
-                      <p className="resume-role">{data.basics.role}</p>
-                    )}
-                    {visibility.basics.field && data.basics.field && (
-                      <p className="resume-field">{data.basics.field}</p>
-                    )}
-                  </>
-                )}
+                ) : null}
               </div>
               {visibility.basics.photo && data.basics.image && (
                 <img alt="" className="resume-photo" src={`/${data.basics.image}`} />
@@ -292,24 +437,27 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
             </div>
 
             {language === 'en' && visibility.basics.contact && (
-              <div className="resume-contact">
-                {data.basics.email && <span>{data.basics.email}</span>}
-                {data.basics['personal-website'] && (
-                  <a href={data.basics['personal-website']}>
-                    {data.basics['personal-website'].replace(/^https?:\/\//, '')}
+              <div className="resume-contact resume-contact-en">
+                {data.basics.email && (
+                  <a href={`mailto:${data.basics.email}`}>
+                    <ContactIcon type="email" />
+                    {data.basics.email}
                   </a>
                 )}
-                {visibility.basics.location && data.basics.location && (
-                  <span>
-                    {data.basics.location.city}, {data.basics.location.region}
-                  </span>
-                )}
-                {visibility.basics.profiles &&
-                  data.basics.profiles.map((profile) => (
-                    <a href={profile.url} key={profile.url}>
-                      {profile.network}
+                <div className="resume-contact-secondary">
+                  {data.basics['personal-website'] && (
+                    <a href={data.basics['personal-website']}>
+                      <ContactIcon type="website" />
+                      {data.basics['personal-website']}
                     </a>
-                  ))}
+                  )}
+                  {visibility.basics.profiles && linkedinProfile && (
+                    <a href={linkedinProfile.url}>
+                      <ContactIcon type="linkedin" />
+                      {linkedinProfile.url}
+                    </a>
+                  )}
+                </div>
               </div>
             )}
 
@@ -330,13 +478,23 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
                     className="resume-item education-item"
                     key={`${item.institution}-${index}`}
                   >
-                    <div className="resume-item-header">
-                      <h3>
-                        <span className="organization-name">{item.institution}</span>
-                      </h3>
-                      <span className="education-degree">{degree}</span>
-                      <span>{formatRange(item.startDate, item.endDate, labels.present)}</span>
-                    </div>
+                    {language === 'en' ? (
+                      <>
+                        <div className="resume-item-header education-header-en">
+                          <h3>{item.institution}</h3>
+                          <span>{formatRange(item.startDate, item.endDate, labels.present)}</span>
+                        </div>
+                        <p className="education-degree-en">{degree}</p>
+                      </>
+                    ) : (
+                      <div className="resume-item-header">
+                        <h3>
+                          <span className="organization-name">{item.institution}</span>
+                        </h3>
+                        <span className="education-degree">{degree}</span>
+                        <span>{formatRange(item.startDate, item.endDate, labels.present)}</span>
+                      </div>
+                    )}
                     {visibleCourses.length > 0 && (
                       <p className="course-line">
                         <strong>{labels.coursework}：</strong>
@@ -349,29 +507,6 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
             </ResumeSection>
           )}
 
-          {visibility.sections.skills && visibleSkills.length > 0 && (
-            <ResumeSection name="skills" title={labels.skills}>
-              <ul className="skills-list">
-                {visibleSkills.map((skill, index) => {
-                  const originalIndex = data.skills.indexOf(skill);
-                  const visibleKeywords = skill.keywords.filter((_, keywordIndex) =>
-                    isBulletVisible(visibility, 'skills', originalIndex, keywordIndex),
-                  );
-
-                  if (visibleKeywords.length === 0) {
-                    return null;
-                  }
-
-                  return (
-                    <li className="skill-category" key={`${skill.category}-${index}`}>
-                      <strong>{skill.category ?? skill.name}：</strong>
-                      <span>{visibleKeywords.join(', ')}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </ResumeSection>
-          )}
           {visibility.sections.experience && visibleExperience.length > 0 && (
             <ResumeSection name="experience" title={labels.experience}>
               {visibleExperience.map((item, index) => {
@@ -379,13 +514,16 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
                 const organization = item.institution ?? item.company ?? item.name;
                 const organizationLabel = [
                   organization,
+                  item.facility,
                   item.supervisor
-                    ? `（${labels.supervisor}：${item.supervisor}）`
+                    ? language === 'zh'
+                      ? `导师：${item.supervisor}`
+                      : `${labels.supervisor}: ${item.supervisor}`
                     : undefined,
                 ]
                   .filter(Boolean)
-                  .join('');
-                const description = item.description ?? (item.summary ? [item.summary] : []);
+                  .join(' · ');
+                const description = item.description ?? [];
 
                 return (
                   <div
@@ -395,29 +533,17 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
                     key={`${item.position}-${index}`}
                   >
                     <div className="resume-item-header">
-                      <h3>
-                        {item.position}
-                        {language !== 'zh' && organization && (
-                          <>
-                            {' @ '}
-                            <span className="organization-name">{organization}</span>
-                          </>
-                        )}
-                        {language !== 'zh' && item.supervisor && (
-                          <span className="supervisor-label">
-                            （{labels.supervisor}：{item.supervisor}）
-                          </span>
-                        )}
-                      </h3>
-                      {language === 'zh' && organizationLabel && (
-                        <span className="experience-organization">
-                          {organizationLabel}
-                        </span>
-                      )}
-                      <span>{formatRange(item.startDate, item.endDate, labels.present)}</span>
+                      <h3>{organizationLabel}</h3>
+                      <div className="experience-meta">
+                        <span className="experience-role">{item.position}</span>
+                        <span>{formatRange(item.startDate, item.endDate, labels.present)}</span>
+                      </div>
                     </div>
-                    {language !== 'zh' && item.facility && (
-                      <p className="resume-subtitle">{item.facility}</p>
+                    {item.summary && (
+                      <p className="experience-summary">
+                        {language === 'zh' && <strong>背景介绍：</strong>}
+                        {item.summary}
+                      </p>
                     )}
                     <ul className="resume-list">
                       {description.map((text, bulletIndex) =>
@@ -452,16 +578,31 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
                         {item.link}
                       </a>
                     )}
-                    <ul className="resume-list">
+                    <div className="project-description">
                       {(item.description ?? []).map((text, bulletIndex) =>
                         isBulletVisible(
                           visibility,
                           'projects',
                           originalIndex,
                           bulletIndex,
-                        ) ? <li key={`${text}-${bulletIndex}`}>{emphasize(text)}</li> : null,
+                        ) ? (
+                          <p className="project-description-row" key={`${text}-${bulletIndex}`}>
+                            {bulletIndex < 2 && (
+                              <strong className="project-description-label">
+                                {language === 'zh'
+                                  ? bulletIndex === 0
+                                    ? '背景介绍：'
+                                    : '技术实现：'
+                                  : bulletIndex === 0
+                                    ? 'Background: '
+                                    : 'Implementation: '}
+                              </strong>
+                            )}
+                            <span>{emphasize(text)}</span>
+                          </p>
+                        ) : null,
                       )}
-                    </ul>
+                    </div>
                     {item.highlights && item.highlights.length > 0 && (
                       <div className="tag-list">
                         {item.highlights.map((tag) => (
@@ -474,7 +615,40 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
               })}
             </ResumeSection>
           )}
-        </article>
+          {visibility.sections.skills && visibleSkills.length > 0 && (
+            <ResumeSection name="skills" title={labels.skills}>
+              <ul className="skills-list">
+                {visibleSkills.map((skill, index) => {
+                  const originalIndex = data.skills.indexOf(skill);
+                  const visibleKeywords = skill.keywords.filter((_, keywordIndex) =>
+                    isBulletVisible(visibility, 'skills', originalIndex, keywordIndex),
+                  );
+
+                  if (visibleKeywords.length === 0) {
+                    return null;
+                  }
+
+                  return (
+                    <li className="skill-category" key={`${skill.category}-${index}`}>
+                      <strong>{skill.category ?? skill.name}：</strong>
+                      <span>{visibleKeywords.join(', ')}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </ResumeSection>
+          )}
+          </div>
+          </article>
+        </div>
+      </div>
+      <div className="preview-balance-bar">
+        <label className="preview-auto-toggle"><input checked={balance.auto} onChange={(event) => onBalanceChange({ auto: event.target.checked, adjustment: event.target.checked ? balance.adjustment : effectiveAdjustment })} type="checkbox" /><span>自动</span></label>
+        <span aria-hidden="true" title="向左缩小字体">−</span>
+        <input aria-label="页面填充微调：向左缩小字体，向右增加间距" className="preview-spacing-range" max={MAX_SPACING} min={MIN_ADJUSTMENT} onChange={(event) => onBalanceChange({ auto: false, adjustment: Number(event.target.value) })} step="0.5" type="range" value={effectiveAdjustment} />
+        <span aria-hidden="true" title="向右增加间距">+</span>
+        <output className="preview-spacing-value">{effectiveAdjustment < 0 ? `正文 ${balanceValues.bodySize.toFixed(1)}pt` : effectiveAdjustment === 0 ? '0px' : `+${effectiveAdjustment.toFixed(1)}px`}</output>
+        <button aria-label="恢复自动平衡" className="preview-balance-reset" onClick={() => onBalanceChange({ auto: true, adjustment: 0 })} title="恢复自动平衡" type="button">↺</button>
       </div>
     </main>
   );

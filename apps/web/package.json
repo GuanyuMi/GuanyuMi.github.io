@@ -10,7 +10,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@portfolio/resume-content": "*",
     "@portfolio/resume-schema": "*",
     "@supabase/supabase-js": "^2.57.4",
     "@tailwindcss/vite": "^4.1.14",

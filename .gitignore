@@ -11,4 +11,5 @@ vite.config.d.ts
 .env.local
 .env.*.local
 supabase/password.txt
-supabase/password.txt
+private-resume/resume.en.json
+private-resume/resume.zh.json

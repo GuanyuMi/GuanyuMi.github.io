@@ -28,7 +28,7 @@ const ContentEditor = ({
         <h2>Resume JSON</h2>
       </div>
       <div className="content-actions">
-        <button className="btn btn-secondary" disabled={!canPublish} onClick={onSave} type="button">Save draft</button>
+        <button className="btn btn-secondary" disabled={!canPublish} onClick={onSave} type="button">Save locally</button>
         <button className="btn btn-primary" disabled={!canPublish} onClick={onPublish} type="button">Publish</button>
       </div>
     </div>

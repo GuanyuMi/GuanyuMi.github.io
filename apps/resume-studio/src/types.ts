@@ -18,11 +18,7 @@ export interface ResumeVisibility {
   bullets: Record<string, boolean>;
 }
 
-export interface ResumeLayout {
-  nameSize: number;
-  sectionTitleSize: number;
-  itemTitleSize: number;
-  bodySize: number;
-  spacingScale: number;
-  accentColor: string;
+export interface ResumeBalance {
+  auto: boolean;
+  adjustment: number;
 }

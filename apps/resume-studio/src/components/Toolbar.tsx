@@ -3,12 +3,14 @@ import React from 'react';
 type ResumeLanguage = 'zh' | 'en';
 
 interface ToolbarProps {
+  exporting: boolean;
   language: ResumeLanguage;
   onLanguageChange: (language: ResumeLanguage) => void;
   onExport: () => void;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
+  exporting,
   language,
   onLanguageChange,
   onExport,
@@ -37,8 +39,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
             English
           </button>
         </div>
-        <button className="btn btn-primary" onClick={onExport} type="button">
-          导出 PDF
+        <button className="btn btn-primary" disabled={exporting} onClick={onExport} type="button">
+          {exporting ? '正在生成…' : '导出 PDF'}
         </button>
       </div>
     </header>

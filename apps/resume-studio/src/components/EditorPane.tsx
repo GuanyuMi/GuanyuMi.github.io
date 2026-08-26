@@ -1,15 +1,12 @@
 import React from 'react';
 import type {
   ResumeData,
-  ResumeLayout,
   ResumeSectionKey,
   ResumeVisibility,
 } from '../types';
 
 interface EditorPaneProps {
   data: ResumeData;
-  layout: ResumeLayout;
-  onLayoutChange: React.Dispatch<React.SetStateAction<ResumeLayout>>;
   visibility: ResumeVisibility;
   onVisibilityChange: React.Dispatch<React.SetStateAction<ResumeVisibility>>;
 }
@@ -78,60 +75,6 @@ const ToggleRow = ({
   </label>
 );
 
-const ColorRow = ({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) => (
-  <label className="color-row">
-    <span>
-      <strong>装饰色</strong>
-      <small>{value}</small>
-    </span>
-    <input
-      aria-label="选择装饰色"
-      onChange={(event) => onChange(event.target.value)}
-      type="color"
-      value={value}
-    />
-  </label>
-);
-
-const RangeRow = ({
-  displayValue,
-  label,
-  max,
-  min,
-  step,
-  value,
-  onChange,
-}: {
-  displayValue: string;
-  label: string;
-  max: number;
-  min: number;
-  step: number;
-  value: number;
-  onChange: (value: number) => void;
-}) => (
-  <label className="range-row">
-    <span>
-      <strong>{label}</strong>
-      <small>{displayValue}</small>
-    </span>
-    <input
-      max={max}
-      min={min}
-      onChange={(event) => onChange(Number(event.target.value))}
-      step={step}
-      type="range"
-      value={value}
-    />
-  </label>
-);
-
 const getExperienceTitle = (item: ResumeData['experience'][number]) => {
   const organization = item.institution ?? item.company ?? item.name ?? '';
   return organization ? `${item.position} @ ${organization}` : item.position;
@@ -139,8 +82,6 @@ const getExperienceTitle = (item: ResumeData['experience'][number]) => {
 
 const EditorPane: React.FC<EditorPaneProps> = ({
   data,
-  layout,
-  onLayoutChange,
   visibility,
   onVisibilityChange,
 }) => {
@@ -224,71 +165,6 @@ const EditorPane: React.FC<EditorPaneProps> = ({
   return (
     <div className="layout-editor">
       <section className="editor-section">
-        <h2 className="editor-section-title">排版密度</h2>
-        <ColorRow
-          onChange={(accentColor) =>
-            onLayoutChange((current) => ({ ...current, accentColor }))
-          }
-          value={layout.accentColor}
-        />
-        <RangeRow
-          displayValue={`${layout.nameSize.toFixed(1)} 号`}
-          label="姓名字号"
-          max={28}
-          min={16}
-          onChange={(nameSize) =>
-            onLayoutChange((current) => ({ ...current, nameSize }))
-          }
-          step={0.5}
-          value={layout.nameSize}
-        />
-        <RangeRow
-          displayValue={`${layout.sectionTitleSize.toFixed(1)} 号`}
-          label="板块标题"
-          max={16}
-          min={10}
-          onChange={(sectionTitleSize) =>
-            onLayoutChange((current) => ({ ...current, sectionTitleSize }))
-          }
-          step={0.5}
-          value={layout.sectionTitleSize}
-        />
-        <RangeRow
-          displayValue={`${layout.itemTitleSize.toFixed(1)} 号`}
-          label="职位/项目"
-          max={14}
-          min={9}
-          onChange={(itemTitleSize) =>
-            onLayoutChange((current) => ({ ...current, itemTitleSize }))
-          }
-          step={0.5}
-          value={layout.itemTitleSize}
-        />
-        <RangeRow
-          displayValue={`${layout.bodySize.toFixed(1)} 号`}
-          label="正文/日期"
-          max={12}
-          min={8}
-          onChange={(bodySize) =>
-            onLayoutChange((current) => ({ ...current, bodySize }))
-          }
-          step={0.5}
-          value={layout.bodySize}
-        />
-        <RangeRow
-          displayValue={`${Math.round(layout.spacingScale * 100)}%`}
-          label="间距"
-          max={1.2}
-          min={0.75}
-          onChange={(spacingScale) =>
-            onLayoutChange((current) => ({ ...current, spacingScale }))
-          }
-          step={0.01}
-          value={layout.spacingScale}
-        />
-      </section>
-
-      <section className="editor-section">
         <h2 className="editor-section-title">基础信息</h2>
         <ToggleRow
           checked={visibility.basics.role}
@@ -338,14 +214,6 @@ const EditorPane: React.FC<EditorPaneProps> = ({
           })),
         )}
         {renderSectionItems(
-          'skills',
-          data.skills.map((item) => ({
-            label: item.category ?? item.name ?? '技能分类',
-            detail: item.keywords.join(', '),
-            bullets: item.keywords,
-          })),
-        )}
-        {renderSectionItems(
           'experience',
           data.experience.map((item) => ({
             label: getExperienceTitle(item),
@@ -359,6 +227,14 @@ const EditorPane: React.FC<EditorPaneProps> = ({
             label: item.name,
             detail: item.startDate,
             bullets: item.description,
+          })),
+        )}
+        {renderSectionItems(
+          'skills',
+          data.skills.map((item) => ({
+            label: item.category ?? item.name ?? '技能分类',
+            detail: item.keywords.join(', '),
+            bullets: item.keywords,
           })),
         )}
       </section>
