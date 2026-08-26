@@ -18,6 +18,7 @@ alter table public.resume_published enable row level security;
 grant select, insert, update, delete on public.resume_drafts to authenticated;
 grant select on public.resume_published to anon, authenticated;
 
+drop policy if exists "administrator manages drafts" on public.resume_drafts;
 create policy "administrator manages drafts"
   on public.resume_drafts
   for all
@@ -25,6 +26,7 @@ create policy "administrator manages drafts"
   using ((auth.jwt() ->> 'email') = 'YOUR_ADMIN_EMAIL')
   with check ((auth.jwt() ->> 'email') = 'YOUR_ADMIN_EMAIL');
 
+drop policy if exists "published resumes are public" on public.resume_published;
 create policy "published resumes are public"
   on public.resume_published
   for select
