@@ -136,10 +136,6 @@ a { color: inherit; text-decoration: none; }
 .footer-status p { margin: 0; }
 .footer-status p:last-child { text-align: right; }
 .footer-status i { display: inline-block; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: #ffcf4e; }
-.loading { display: grid; min-height: 100svh; align-content: center; padding: 90px 7vw; }
-.loading p { color: #ff936d; font: 700 11px "Space Mono", monospace; }
-.loading h1 { margin: 10px 0; font-size: clamp(48px,7vw,96px); letter-spacing: -.07em; }
-.loading span { color: #837e79; }
 a:focus-visible { outline: 2px solid #ffcf4e; outline-offset: 4px; }
 @keyframes pulse { 50% { opacity: .48; transform: scale(.86); } }
 

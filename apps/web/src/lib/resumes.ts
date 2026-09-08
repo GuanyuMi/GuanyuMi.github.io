@@ -1,21 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
-import { parseResumeData, type Locale, type ResumeData } from '@portfolio/resume-schema';
+import { parseResumeData, type ResumeData } from '@portfolio/resume-schema';
 
-const url = import.meta.env.VITE_SUPABASE_URL;
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const supabase = url && key ? createClient(url, key) : null;
+const result = parseResumeData(__RESUME_SNAPSHOT__);
 
-export const loadPublishedResume = async (locale: Locale): Promise<ResumeData | null> => {
-  if (!supabase) return null;
+if (!result.success) throw new Error('The embedded resume snapshot is invalid');
 
-  const { data, error } = await supabase
-    .from('resume_published')
-    .select('content')
-    .eq('locale', locale)
-    .maybeSingle();
-
-  if (error || !data) return null;
-
-  const result = parseResumeData(data.content);
-  return result.success ? result.data : null;
-};
+export const publishedResume: ResumeData = result.data;

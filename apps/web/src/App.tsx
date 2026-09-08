@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowUpRight, Bot, Boxes, Braces, Container, Cpu, Database, Github, GitBranch, Linkedin, Mail } from 'lucide-react';
 import type { ResumeData } from '@portfolio/resume-schema';
-import { loadPublishedResume } from './lib/resumes';
+import { publishedResume } from './lib/resumes';
 
 type Project = {
   name: string;
@@ -127,17 +127,14 @@ function ProfilePage({ resume }: { resume: ResumeData }) {
 }
 
 export default function App() {
-  const [resume, setResume] = useState<ResumeData | null>(null);
+  const resume = publishedResume;
   const [page, setPage] = useState<Page>(getPage);
   const reduceMotion = useReducedMotion();
-  useEffect(() => { void loadPublishedResume('en').then(setResume); }, []);
   useEffect(() => {
     const handleHashChange = () => setPage(getPage());
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
-
-  if (!resume) return <div className="site-frame"><Header page={page} /><main className="loading"><p>CORE_LINK_PENDING</p><h1>Profile unavailable.</h1><span>Published portfolio data could not be loaded.</span></main></div>;
 
   const parts = resume.basics.name.trim().split(/\s+/);
   const firstName = parts.shift() ?? 'Guanyu';
