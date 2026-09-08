@@ -118,6 +118,22 @@ const isBulletVisible = (
   bulletIndex: number,
 ) => visibility.bullets[bulletKey(section, itemIndex, bulletIndex)] ?? true;
 
+const isExperienceProjectVisible = (
+  visibility: ResumeVisibility,
+  experienceIndex: number,
+  projectIndex: number,
+) => visibility.items[`experience.${experienceIndex}.projects.${projectIndex}`] ?? true;
+
+const isExperienceProjectBulletVisible = (
+  visibility: ResumeVisibility,
+  experienceIndex: number,
+  projectIndex: number,
+  bulletIndex: number,
+) =>
+  visibility.bullets[
+    `experience.${experienceIndex}.projects.${projectIndex}.${bulletIndex}`
+  ] ?? true;
+
 const formatDate = (date: string | undefined, presentLabel: string) => {
   if (!date) {
     return '';
@@ -524,6 +540,8 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
                   .filter(Boolean)
                   .join(' · ');
                 const description = item.description ?? [];
+                const background = item.background ?? item.summary;
+                const projects = item.projects ?? [];
 
                 return (
                   <div
@@ -539,22 +557,58 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
                         <span>{formatRange(item.startDate, item.endDate, labels.present)}</span>
                       </div>
                     </div>
-                    {item.summary && (
+                    {background && (
                       <p className="experience-summary">
-                        {language === 'zh' && <strong>背景介绍：</strong>}
-                        {item.summary}
+                        <strong>{language === 'zh' ? '背景介绍：' : 'Background: '}</strong>
+                        {background}
                       </p>
                     )}
-                    <ul className="resume-list">
-                      {description.map((text, bulletIndex) =>
-                        isBulletVisible(
-                          visibility,
-                          'experience',
-                          originalIndex,
-                          bulletIndex,
-                        ) ? <li key={`${text}-${bulletIndex}`}>{emphasize(text)}</li> : null,
-                      )}
-                    </ul>
+                    {projects.length > 0 ? (
+                      <div className="experience-projects">
+                        {projects.map((project, projectIndex) =>
+                          isExperienceProjectVisible(
+                            visibility,
+                            originalIndex,
+                            projectIndex,
+                          ) ? (
+                            <div className="experience-project" key={projectIndex}>
+                              <h4 className="experience-project-title">{project.name}</h4>
+                              {project.background && (
+                                <p className="experience-project-background">
+                                  <strong>
+                                    {language === 'zh' ? '背景介绍：' : 'Background: '}
+                                  </strong>
+                                  {project.background}
+                                </p>
+                              )}
+                              <ul className="resume-list">
+                                {(project.description ?? []).map((text, bulletIndex) =>
+                                  isExperienceProjectBulletVisible(
+                                    visibility,
+                                    originalIndex,
+                                    projectIndex,
+                                    bulletIndex,
+                                  ) ? (
+                                    <li key={bulletIndex}>{emphasize(text)}</li>
+                                  ) : null,
+                                )}
+                              </ul>
+                            </div>
+                          ) : null,
+                        )}
+                      </div>
+                    ) : (
+                      <ul className="resume-list">
+                        {description.map((text, bulletIndex) =>
+                          isBulletVisible(
+                            visibility,
+                            'experience',
+                            originalIndex,
+                            bulletIndex,
+                          ) ? <li key={bulletIndex}>{emphasize(text)}</li> : null,
+                        )}
+                      </ul>
+                    )}
                   </div>
                 );
               })}

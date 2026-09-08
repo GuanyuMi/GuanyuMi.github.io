@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { parseResumeData, type Locale, type ResumeData } from '@portfolio/resume-schema';
-import EditorPane from './components/EditorPane';
 import LoginPanel from './components/LoginPanel';
 import PreviewPane from './components/PreviewPane';
 import ResumeForm from './components/ResumeForm';
@@ -160,7 +159,6 @@ function App() {
         <aside className="editor-pane">
           <div className="editor-intro"><p className="eyebrow">RESUME STUDIO</p><h2>编辑简历</h2><p>更改会实时反映在右侧 A4 预览中。</p><div className="content-actions"><button className="btn btn-secondary" disabled={Boolean(errors[language])} onClick={() => void saveLocal()} type="button">保存本地</button><button className="btn btn-primary" disabled={Boolean(errors[language])} onClick={() => void publish()} type="button">发布</button></div><p className={errors[language] ? 'form-error' : 'editor-status'}>{errors[language] ?? status}</p></div>
           <ResumeForm data={drafts[language]} onChange={handleContentChange} onVisibilityChange={setVisibility} visibility={visibility} />
-          <details className="visibility-panel"><summary>显示控制</summary><EditorPane data={drafts[language]} onVisibilityChange={setVisibility} visibility={visibility} /></details>
           <button className="sign-out" onClick={() => void supabase?.auth.signOut()} type="button">Sign out</button>
         </aside>
         <div className="preview-stack">
