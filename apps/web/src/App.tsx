@@ -100,10 +100,27 @@ function ProfilePage({ resume }: { resume: ResumeData }) {
         <div className="experience-timeline">
           {resume.experience.map((item, index) => {
             const organization = item.company ?? item.facility ?? item.institution ?? '';
+            const background = item.background ?? item.summary;
+            const description = item.description ?? item.highlights ?? [];
+            const projects = item.projects ?? [];
             return <motion.article className="experience-item" key={`${item.position}-${item.startDate}`} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .15 }} transition={{ delay: index * .06 }}>
               <i className="timeline-node" />
               <div className="experience-title"><div><h2>{item.position}</h2><p>{organization}</p></div><time>{formatDate(item.startDate)} — {formatDate(item.endDate)}</time></div>
-              <div className="experience-card">{item.description?.map((description) => <p key={description}>{description}</p>)}</div>
+              <div className={`experience-card${projects.length > 0 ? ' experience-card-projects' : ''}`}>
+                {background && <p className="experience-background">{background}</p>}
+                {projects.length > 0
+                  ? projects.map((project, projectIndex) => {
+                    const projectDescription = project.description ?? project.highlights ?? [];
+                    return <section className="experience-project" key={`${project.name}-${projectIndex}`}>
+                      <h3><span>{String(projectIndex + 1).padStart(2, '0')}</span>{project.name}</h3>
+                      {project.background && <p className="experience-project-background">{project.background}</p>}
+                      <div className="experience-project-points">
+                        {projectDescription.map((text, bulletIndex) => <p className="experience-bullet" key={`${bulletIndex}-${text}`}>{text}</p>)}
+                      </div>
+                    </section>;
+                  })
+                  : description.map((text, bulletIndex) => <p className="experience-bullet" key={`${bulletIndex}-${text}`}>{text}</p>)}
+              </div>
             </motion.article>;
           })}
         </div>

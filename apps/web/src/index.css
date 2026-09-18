@@ -96,10 +96,21 @@ a { color: inherit; text-decoration: none; }
 .experience-item:nth-child(n+3) .experience-title p { color: #9fe75d; }
 .experience-title time { flex: 0 0 auto; padding-top: 8px; color: #514d49; font: 700 9px "Space Mono", monospace; }
 .experience-card { display: grid; gap: 14px; padding: 26px 30px; border: 1px solid #24211f; border-radius: 18px; background: rgba(15,14,13,.62); }
-.experience-card p { position: relative; margin: 0; padding-left: 20px; color: #a9a39d; font-size: 15px; line-height: 1.55; }
-.experience-card p::before { position: absolute; left: 0; color: #ff936d; font: 700 13px "Space Mono", monospace; content: "/"; }
-.experience-item:nth-child(2) .experience-card p::before { color: #ffcf4e; }
-.experience-item:nth-child(n+3) .experience-card p::before { color: #9fe75d; }
+.experience-card p { margin: 0; color: #a9a39d; font-size: 15px; line-height: 1.55; }
+.experience-bullet { position: relative; padding-left: 20px; }
+.experience-bullet::before { position: absolute; left: 0; color: #ff936d; font: 700 13px "Space Mono", monospace; content: "/"; }
+.experience-item:nth-child(2) .experience-bullet::before { color: #ffcf4e; }
+.experience-item:nth-child(n+3) .experience-bullet::before { color: #9fe75d; }
+.experience-background { padding-bottom: 17px; border-bottom: 1px solid #24211f; }
+.experience-card-projects { gap: 18px; }
+.experience-project { display: grid; gap: 13px; }
+.experience-project + .experience-project { margin-top: 8px; padding-top: 24px; border-top: 1px solid #24211f; }
+.experience-project h3 { display: flex; align-items: baseline; gap: 11px; margin: 0; color: #f2eee8; font-size: 17px; letter-spacing: -.02em; line-height: 1.3; }
+.experience-project h3 span { color: #ff936d; font: 700 9px "Space Mono", monospace; letter-spacing: .08em; }
+.experience-item:nth-child(2) .experience-project h3 span { color: #ffcf4e; }
+.experience-item:nth-child(n+3) .experience-project h3 span { color: #9fe75d; }
+.experience-project-background { color: #77716c !important; font-size: 14px !important; }
+.experience-project-points { display: grid; gap: 12px; }
 .profile-sidebar { padding: 35px clamp(20px,2.4vw,46px) 90px; }
 .sidebar-heading { display: flex; align-items: center; gap: 24px; margin-bottom: 28px; }
 .sidebar-heading h2 { margin: 0; font: 700 14px "Space Mono", monospace; letter-spacing: .16em; white-space: nowrap; }

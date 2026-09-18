@@ -70,37 +70,6 @@ const ContactIcon = ({ type }: { type: 'email' | 'website' | 'linkedin' }) => {
   );
 };
 
-const strongTerms = [
-  'Search-R1',
-  'MuSiQue',
-  '4B',
-  'Agentic LLM',
-  'Gemini API',
-  'Golden trajectories',
-  'SFT',
-  'Exact Match',
-  '2.7',
-  'pass@k',
-  'Scaling Laws',
-  'veRL',
-  'RL',
-  'C++',
-  'PyQt',
-  'LangGraph',
-  'FastAPI',
-  'SQLite',
-  'scikit-learn',
-  'Forgetting-curve',
-  'Unsloth',
-  'LoRA',
-  'TRL',
-  'vLLM',
-  'Zod',
-  'Supabase Auth',
-  'PostgreSQL RLS',
-  'GitHub Pages',
-];
-
 const itemKey = (section: ResumeSectionKey, index: number) => `${section}.${index}`;
 const bulletKey = (section: ResumeSectionKey, itemIndex: number, bulletIndex: number) =>
   `${section}.${itemIndex}.${bulletIndex}`;
@@ -176,17 +145,6 @@ const formatAge = (birth: string | undefined) => {
   }
 
   return age >= 0 ? `${age}岁` : undefined;
-};
-
-const emphasize = (text: string) => {
-  const pattern = new RegExp(
-    `(${strongTerms.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`,
-    'g',
-  );
-
-  return text.split(pattern).map((part, index) =>
-    strongTerms.includes(part) ? <strong key={`${part}-${index}`}>{part}</strong> : part,
-  );
 };
 
 const SectionIcon = ({ name }: { name: ResumeSectionKey }) => {
@@ -322,6 +280,29 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
   ].filter(Boolean);
   const effectiveAdjustment = balance.auto ? autoAdjustment : balance.adjustment;
   const balanceValues = getBalanceValues(effectiveAdjustment);
+  const skillsSection = visibility.sections.skills && visibleSkills.length > 0 && (
+    <ResumeSection name="skills" title={labels.skills}>
+      <ul className="skills-list">
+        {visibleSkills.map((skill, index) => {
+          const originalIndex = data.skills.indexOf(skill);
+          const visibleKeywords = skill.keywords.filter((_, keywordIndex) =>
+            isBulletVisible(visibility, 'skills', originalIndex, keywordIndex),
+          );
+
+          if (visibleKeywords.length === 0) {
+            return null;
+          }
+
+          return (
+            <li className="skill-category" key={`${skill.category}-${index}`}>
+              <strong>{skill.category ?? skill.name}：</strong>
+              <span>{visibleKeywords.join(', ')}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </ResumeSection>
+  );
 
   useLayoutEffect(() => {
     const page = pageRef.current;
@@ -523,6 +504,8 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
             </ResumeSection>
           )}
 
+          {language === 'en' && skillsSection}
+
           {visibility.sections.experience && visibleExperience.length > 0 && (
             <ResumeSection name="experience" title={labels.experience}>
               {visibleExperience.map((item, index) => {
@@ -589,7 +572,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
                                     projectIndex,
                                     bulletIndex,
                                   ) ? (
-                                    <li key={bulletIndex}>{emphasize(text)}</li>
+                                    <li key={bulletIndex}>{text}</li>
                                   ) : null,
                                 )}
                               </ul>
@@ -605,7 +588,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
                             'experience',
                             originalIndex,
                             bulletIndex,
-                          ) ? <li key={bulletIndex}>{emphasize(text)}</li> : null,
+                          ) ? <li key={bulletIndex}>{text}</li> : null,
                         )}
                       </ul>
                     )}
@@ -652,7 +635,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
                                     : 'Implementation: '}
                               </strong>
                             )}
-                            <span>{emphasize(text)}</span>
+                            <span>{text}</span>
                           </p>
                         ) : null,
                       )}
@@ -669,29 +652,7 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
               })}
             </ResumeSection>
           )}
-          {visibility.sections.skills && visibleSkills.length > 0 && (
-            <ResumeSection name="skills" title={labels.skills}>
-              <ul className="skills-list">
-                {visibleSkills.map((skill, index) => {
-                  const originalIndex = data.skills.indexOf(skill);
-                  const visibleKeywords = skill.keywords.filter((_, keywordIndex) =>
-                    isBulletVisible(visibility, 'skills', originalIndex, keywordIndex),
-                  );
-
-                  if (visibleKeywords.length === 0) {
-                    return null;
-                  }
-
-                  return (
-                    <li className="skill-category" key={`${skill.category}-${index}`}>
-                      <strong>{skill.category ?? skill.name}：</strong>
-                      <span>{visibleKeywords.join(', ')}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </ResumeSection>
-          )}
+          {language === 'zh' && skillsSection}
           </div>
           </article>
         </div>

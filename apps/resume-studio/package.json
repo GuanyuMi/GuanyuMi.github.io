@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port=3001",
+    "dev": "vite --host=127.0.0.1 --port=3070 --strictPort",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --pretty false"
   },
